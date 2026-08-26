@@ -1,0 +1,118 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Anastasiia Senyk</title>
+<link rel="canonical" href="https://anastasiiasenyk.com/">
+<meta name="description" content="Anastasiia Senyk">
+<meta property="og:title" content="Anastasiia Senyk">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://anastasiiasenyk.com/">
+<meta property="og:image" content="https://anastasiiasenyk.com/photo.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>&#9679;</text></svg>">
+<style>
+  :root {
+    --bg: #fbfbfa;
+    --fg: #1b1b1a;
+    --muted: #6f6f6b;
+    --line: #e2e2df;
+    --shadow: 0 1px 2px rgba(0,0,0,.05), 0 18px 40px -18px rgba(0,0,0,.22);
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #121211;
+      --fg: #ededea;
+      --muted: #9a9a94;
+      --line: #2c2c2a;
+      --shadow: 0 1px 2px rgba(0,0,0,.4), 0 18px 40px -18px rgba(0,0,0,.7);
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  html { -webkit-text-size-adjust: 100%; }
+
+  body {
+    margin: 0;
+    min-height: 100svh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1.25rem;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Inter, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  main {
+    width: 100%;
+    max-width: 720px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.25rem;
+  }
+
+  .photo {
+    display: block;
+    width: 100%;
+    height: auto;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    background: var(--line);
+  }
+
+  .link {
+    display: inline-flex;
+    align-items: center;
+    gap: .6rem;
+    padding: .7rem 1.15rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    color: var(--muted);
+    text-decoration: none;
+    font-size: .95rem;
+    letter-spacing: .01em;
+    transition: color .18s ease, border-color .18s ease, transform .18s ease;
+  }
+
+  .link:hover,
+  .link:focus-visible {
+    color: var(--fg);
+    border-color: var(--muted);
+    transform: translateY(-1px);
+  }
+
+  .link:focus-visible {
+    outline: 2px solid var(--fg);
+    outline-offset: 3px;
+  }
+
+  .link svg {
+    width: 18px;
+    height: 18px;
+    fill: currentColor;
+    flex: none;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .link { transition: none; }
+    .link:hover, .link:focus-visible { transform: none; }
+  }
+</style>
+</head>
+<body>
+  <main>
+    <img class="photo" src="photo.jpg" width="1440" height="959" alt="Anastasiia Senyk presenting at Ukrainian Catholic University">
+
+    <a class="link" href="https://www.linkedin.com/in/anastasiiasenyk/" rel="me noopener">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.64h.05c.53-.95 1.83-1.95 3.76-1.95C20.6 8.69 21 11.1 21 14.24V21h-4v-6c0-1.43-.03-3.28-2-3.28-2 0-2.3 1.56-2.3 3.17V21H9z"/></svg>
+      LinkedIn
+    </a>
+  </main>
+</body>
+</html>
