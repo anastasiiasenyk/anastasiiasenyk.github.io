@@ -51,10 +51,12 @@ body {
 .wrap { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
 
 header { display: grid; gap: 6px; text-align: center; }
+.titlebar { display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; }
+.titlebar h1 { min-width: 0; }
 h1 {
   font-family: var(--display);
   font-weight: 800;
-  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  font-size: clamp(1.9rem, 6vw, 2.3rem);
   line-height: 1.05;
   letter-spacing: -0.02em;
   margin: 0;
@@ -201,7 +203,7 @@ kbd { font: 600 0.75rem/1 var(--body); border: 1px solid var(--line); border-bot
 
 /* View switch: Flashcards / By sound */
 .modes {
-  justify-self: center;
+  flex: none;
   display: inline-flex;
   padding: 4px;
   gap: 4px;
@@ -210,71 +212,107 @@ kbd { font: 600 0.75rem/1 var(--body); border: 1px solid var(--line); border-bot
   border-radius: 999px;
 }
 .modes button {
-  font: 700 0.92rem/1 var(--body);
+  font: 700 0.88rem/1 var(--body);
   border: 0;
   background: transparent;
   color: var(--muted);
   border-radius: 999px;
-  padding: 9px 16px;
+  padding: 8px 13px;
   cursor: pointer;
 }
 .modes button[aria-selected="true"] { background: var(--fg); color: var(--surface); }
 .modes button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 body.by-sound #shuffle, body.by-sound .flip-key { display: none; }
 
-/* By sound: one page per sound, like the lesson book */
+/* By sound: one page per sound, like the lesson book.
+   Same column and same box height as a flashcard, so nothing around it moves when you switch views.
+   The mouth photo takes whatever height is left in the box. */
 .sheet {
   --h: 250;
+  height: var(--card-h, auto);
+  display: flex;
+  flex-direction: column;
   background: var(--surface);
   border-radius: 28px;
-  border: 3px solid oklch(88% 0.08 var(--h));
+  border: 3px solid oklch(85% 0.1 var(--h));
   box-shadow: 0 18px 40px -18px oklch(45% 0.12 var(--h) / 0.45);
   overflow: hidden;
 }
 .sheet-head {
+  flex: none;
   background:
     radial-gradient(circle at 92% 10%, oklch(97% 0.04 calc(var(--h) + 40)) 0 20%, transparent 21%),
     oklch(91% 0.075 var(--h));
   color: oklch(38% 0.14 var(--h));
-  padding: 20px 22px 18px;
-  display: grid;
-  gap: 6px;
+  padding: 12px 18px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 2px 14px;
 }
-.sheet-head .tag { font: 700 0.72rem/1 var(--body); letter-spacing: 0.09em; text-transform: uppercase; }
-.sheet-head .title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
-.sheet-head .name { font-family: var(--display); font-weight: 800; font-size: clamp(2.6rem, 11vw, 3.4rem); line-height: 1; color: var(--fg); letter-spacing: -0.02em; }
-.sheet-head .sym { font-family: var(--ipa); font-size: 1.6rem; }
-.sheet-head .askey { font-size: 1.05rem; font-weight: 600; }
-.sheet-head .meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; font-weight: 600; }
-.sheet-head .meta .ipa-s { font-family: var(--ipa); font-weight: 400; font-size: 1.05rem; }
-.sheet-body { padding: 18px 22px 22px; display: grid; gap: 16px; }
-.sheet .mouth img { height: 200px; }
-.words { display: grid; gap: 8px; }
+.sheet-head .side { display: grid; gap: 4px; justify-items: end; text-align: right; }
+.sheet-head .tag { font: 700 0.7rem/1 var(--body); letter-spacing: 0.09em; text-transform: uppercase; }
+.sheet-head .title { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.sheet-head .name { font-family: var(--display); font-weight: 800; font-size: 2.3rem; line-height: 1; color: var(--fg); letter-spacing: -0.02em; }
+.sheet-head .sym { font-family: var(--ipa); font-size: 1.4rem; }
+.sheet-head .askey { font-size: 1rem; font-weight: 600; }
+.sheet-head .meta { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 4px 12px; font-size: 0.82rem; font-weight: 600; }
+.sheet-head .meta .ipa-s { font-family: var(--ipa); font-weight: 400; font-size: 1rem; }
+.sheet-body { flex: 1 1 auto; min-height: 0; padding: 14px 18px 16px; display: flex; flex-direction: column; gap: 12px; }
+.sheet .col { display: flex; flex-direction: column; gap: 10px; min-width: 0; min-height: 0; }
+.sheet .col:first-child { flex: 1 1 auto; }
+.sheet .mouth { flex: 1 1 0; min-height: 64px; max-height: 210px; position: relative; padding: 0; }
+.sheet .mouth img { position: absolute; inset: 6px; width: calc(100% - 12px); height: calc(100% - 12px); object-fit: contain; border-radius: 8px; }
+.sheet .tip { font-size: 0.93rem; line-height: 1.45; }
+.sheet .glide { gap: 12px; flex-wrap: nowrap; }
+.sheet .glide svg { width: 104px; }
+.sheet .glide p { font-size: 0.82rem; }
+.sheet .label { font-size: 0.68rem; }
+.words { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 .wordrow {
   display: grid;
-  grid-template-columns: auto 1fr auto;
+  grid-template-columns: auto auto minmax(0, 1fr);
   align-items: center;
-  gap: 12px;
+  gap: 8px;
   width: 100%;
   text-align: left;
   font: inherit;
   color: var(--fg);
   background: oklch(97% 0.025 var(--h));
   border: 1.5px solid oklch(88% 0.07 var(--h));
-  border-radius: 16px;
-  padding: 10px 14px;
+  border-radius: 12px;
+  padding: 6px 10px 6px 7px;
   cursor: pointer;
 }
+.wordrow:last-child:nth-child(odd) { grid-column: span 2; }
 .wordrow:hover { border-color: var(--fg); }
 .wordrow:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 .wordrow .play {
-  width: 36px; height: 36px; border-radius: 50%;
+  width: 28px; height: 28px; border-radius: 50%;
   display: grid; place-items: center;
   background: var(--accent); color: var(--accent-fg);
 }
-.wordrow .play svg { width: 18px; height: 18px; }
-.wordrow .w { font-family: var(--display); font-weight: 700; font-size: 1.35rem; line-height: 1.1; }
-.wordrow .t { font-family: var(--ipa); font-size: 1.2rem; color: var(--muted); }
+.wordrow .play svg { width: 15px; height: 15px; }
+.wordrow .w { font-family: var(--display); font-weight: 700; font-size: 1.12rem; line-height: 1.1; }
+.wordrow .t { font-family: var(--ipa); font-size: 0.95rem; line-height: 1.1; color: var(--muted); white-space: nowrap; }
+@media (max-width: 520px) {
+  .sheet-head { padding: 10px 14px; }
+  .sheet-head .tag { display: none; }
+  .sheet-head .name { font-size: 2rem; }
+  .sheet-head .sym { font-size: 1.25rem; }
+  .sheet-head .askey { font-size: 0.92rem; }
+  .sheet-head .meta { font-size: 0.78rem; }
+  .sheet-body { padding: 12px 14px 14px; gap: 10px; }
+  .sheet .tip { font-size: 0.86rem; line-height: 1.42; }
+  .sheet .glide svg { width: 90px; }
+  .sheet .glide p { font-size: 0.78rem; }
+  .wordrow { gap: 7px; padding: 6px 8px 6px 6px; }
+  .wordrow .play { width: 26px; height: 26px; }
+  .wordrow .play svg { width: 14px; height: 14px; }
+  .wordrow .w { font-size: 1.05rem; }
+  .wordrow .t { font-size: 0.9rem; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   .inner, .progress span { transition: none; }
@@ -284,7 +322,9 @@ body.by-sound #shuffle, body.by-sound .flip-key { display: none; }
   body { padding-block: 14px 28px; }
   .wrap { gap: 12px; }
   .lede { display: none; }
-  h1 { font-size: 1.7rem; }
+  h1 { font-size: 1.15rem; white-space: nowrap; }
+  .titlebar { gap: 8px; }
+  .modes { padding: 3px; gap: 2px; }
   .tools { flex-wrap: nowrap; gap: 6px; }
   .tools .btn, .tools select { padding: 8px 10px; font-size: 0.82rem; gap: 5px; }
   .tools .btn svg { width: 15px; height: 15px; }
@@ -301,11 +341,7 @@ body.by-sound #shuffle, body.by-sound .flip-key { display: none; }
   .glide svg { width: 130px; }
   .front { min-height: 340px; }
   .front .tag { top: 18px; left: 18px; }
-  .modes button { padding: 8px 14px; font-size: 0.88rem; }
-  .sheet-head { padding: 16px 16px 14px; }
-  .sheet-body { padding: 14px 16px 18px; gap: 12px; }
-  .sheet .mouth img { height: 140px; }
-  .wordrow { padding: 8px 12px; }
+  .modes button { padding: 6px 9px; font-size: 0.76rem; }
 }
 @media (max-width: 420px) {
   .nav .btn .lbl { display: none; }
@@ -316,14 +352,15 @@ body.by-sound #shuffle, body.by-sound .flip-key { display: none; }
 
 <div class="wrap">
   <header>
-    <h1>American Vowels<span class="dot">.</span></h1>
+    <div class="titlebar">
+      <h1>American Vowels<span class="dot">.</span></h1>
+      <div class="modes" role="tablist" aria-label="View">
+        <button type="button" role="tab" id="modeCards" aria-selected="true">Cards</button>
+        <button type="button" role="tab" id="modeSounds" aria-selected="false">By sound</button>
+      </div>
+    </div>
     <p class="lede" id="lede">Listen to the word, then tap the card to see how to make the sound.</p>
   </header>
-
-  <div class="modes" role="tablist" aria-label="View">
-    <button type="button" role="tab" id="modeCards" aria-selected="true">Flashcards</button>
-    <button type="button" role="tab" id="modeSounds" aria-selected="false">By sound</button>
-  </div>
 
   <div class="tools">
     <label for="filter" class="sr" hidden>Sound</label>
@@ -531,7 +568,10 @@ function measure() {
   stage.style.setProperty("--card-h", Math.ceil(h) + "px");
 }
 let resizeTimer;
-window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(measure, 150); });
+window.addEventListener("resize", () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(measure, 150);
+});
 document.fonts?.ready.then(measure);
 
 function shuffle(a) {
@@ -579,22 +619,26 @@ let soundPos = 0;
 function sheetHTML(s) {
   return `<article class="sheet" style="--h:${s.h}">
     <div class="sheet-head">
-      <span class="tag">${s.kind}</span>
       <div class="title">
         <span class="name">${s.name}</span>
         <span class="sym">(${s.dict})</span>
         <span class="askey">as in “${s.key}”</span>
       </div>
-      <div class="meta">
-        <span>IPA <span class="ipa-s">/${s.ipa}/</span></span>
-        ${s.moves ? `<span>${s.moves}</span>` : ""}
+      <div class="side">
+        <span class="tag">${s.kind}</span>
+        <div class="meta">
+          <span>IPA <span class="ipa-s">/${s.ipa}/</span></span>
+          ${s.moves ? `<span>${s.moves}</span>` : ""}
+        </div>
       </div>
     </div>
     <div class="sheet-body">
-      <div class="mouth"><img src="img/${s.id}.jpg" alt="Mouth position for ${s.name}"></div>
-      <p class="tip">${s.tip}</p>
-      ${s.glide ? glideSVG(s) : ""}
-      <div class="same">
+      <div class="col">
+        <div class="mouth"><img src="img/${s.id}.jpg" alt="Mouth position for ${s.name}"></div>
+        <p class="tip">${s.tip}</p>
+        ${s.glide ? glideSVG(s) : ""}
+      </div>
+      <div class="col same">
         <span class="label">Practice words, tap to hear</span>
         <div class="words">${Object.entries(s.words).map(([w, t]) =>
           `<button class="wordrow" type="button" data-say="${w}"><span class="play">${SPEAKER}</span><span class="w">${w}</span><span class="t">/${t}/</span></button>`
@@ -603,6 +647,7 @@ function sheetHTML(s) {
     </div>
   </article>`;
 }
+
 
 function showSound() {
   const s = SOUNDS[soundPos];
@@ -628,7 +673,7 @@ function setMode(m) {
   document.getElementById("next").setAttribute("aria-label", m === "cards" ? "Next word" : "Next sound");
   document.getElementById("lede").textContent = m === "cards"
     ? "Listen to the word, then tap the card to see how to make the sound."
-    : "Every vowel sound on its own page, with all its practice words.";
+    : "Tap a word to hear it, then press Next to go to the next sound.";
   fillSelect();
   if (m === "cards") show(); else showSound();
   try { history.replaceState(null, "", m === "sounds" ? "#by-sound" : location.pathname + location.search); } catch (e) {}
