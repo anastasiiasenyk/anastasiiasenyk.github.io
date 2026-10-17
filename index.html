@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Anastasiia Senyk</title>
 <link rel="canonical" href="https://anastasiiasenyk.com/">
-<meta name="description" content="Anastasiia Senyk">
+<meta name="description" content="Anastasiia Senyk, AI/ML Engineer">
 <meta property="og:title" content="Anastasiia Senyk">
 <meta property="og:type" content="website">
 <meta property="og:url" content="https://anastasiiasenyk.com/">
@@ -103,12 +103,36 @@
     .link { transition: none; }
     .link:hover, .link:focus-visible { transform: none; }
   }
+
+  figure { position: relative; margin: 0; width: 100%; }
+  figure .photo { display: block; }
+  figcaption {
+    position: absolute; left: 0; right: 0; bottom: 0;
+    padding: 3.5rem 1.4rem 1.2rem;
+    border-radius: 0 0 14px 14px;
+    background: linear-gradient(to top, rgba(0,0,0,.62), rgba(0,0,0,0));
+    color: #fff;
+    display: flex; flex-direction: column; gap: .2rem;
+  }
+  figcaption h1 { margin: 0; font-size: clamp(1.25rem, 3.6vw, 1.75rem); font-weight: 600; letter-spacing: -.015em; }
+  figcaption p { margin: 0; font-size: .95rem; opacity: .85; }
+
+  @media (max-width: 480px) {
+    figcaption { padding: 2.25rem 1rem .8rem; gap: .1rem; }
+    figcaption h1 { font-size: 1.1rem; }
+    figcaption p { font-size: .82rem; }
+  }
 </style>
 </head>
 <body>
   <main>
-    <img class="photo" src="photo.jpg" width="1440" height="959" alt="Anastasiia Senyk presenting at Ukrainian Catholic University">
-
+    <figure>
+      <img class="photo" src="photo.jpg" width="1440" height="959" alt="Anastasiia Senyk presenting at Ukrainian Catholic University">
+      <figcaption>
+        <h1>Anastasiia Senyk</h1>
+        <p>AI/ML Engineer</p>
+      </figcaption>
+    </figure>
     <a class="link" href="https://www.linkedin.com/in/anastasiiasenyk/" rel="me noopener">
       <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5a2.5 2.5 0 1 1 0 5 2.5 2.5 0 0 1 0-5zM3 9h4v12H3zM9 9h3.8v1.64h.05c.53-.95 1.83-1.95 3.76-1.95C20.6 8.69 21 11.1 21 14.24V21h-4v-6c0-1.43-.03-3.28-2-3.28-2 0-2.3 1.56-2.3 3.17V21H9z"/></svg>
       LinkedIn
