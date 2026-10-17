@@ -13,6 +13,7 @@ domain `anastasiiasenyk.com` (see `CNAME`).
 | `photo.jpg` | 1440×959, EXIF stripped, progressive JPEG. |
 | `CNAME` | Tells GitHub Pages which custom domain to serve. Do not delete. |
 | `.nojekyll` | Skips Jekyll processing. |
+| `american-vowels/` | American vowel flashcards, served at `/american-vowels`. Self-contained: `index.html`, mouth photos in `img/`, US recordings in `audio/`. |
 
 ## Editing
 

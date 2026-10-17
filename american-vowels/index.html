@@ -1,0 +1,541 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>American Vowel Cards</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700;12..96,800&family=Figtree:wght@400;500;600;700&family=Charis+SIL:wght@400;700&display=swap">
+<style>
+/* Layout: one big flip card in the middle of a bright pastel page, with Previous / Next under it.
+   Deliberately light-only. Each vowel sound has its own hue (--h) that tints the card. */
+:root {
+  --bg: #f4f8ff;
+  --blob-1: #ffd3df;
+  --blob-2: #fff0a8;
+  --blob-3: #c6f1df;
+  --blob-4: #ddd4ff;
+  --fg: #1b2246;
+  --muted: #5d6690;
+  --surface: #ffffff;
+  --line: #d9def0;
+  --accent: #ff5a4e;
+  --accent-fg: #ffffff;
+  --display: "Bricolage Grotesque", "Avenir Next", system-ui, sans-serif;
+  --body: "Figtree", "Segoe UI", system-ui, sans-serif;
+  --ipa: "Charis SIL", "Doulos SIL", "Gentium Plus", "Times New Roman", serif;
+  color-scheme: light;
+}
+
+* { box-sizing: border-box; }
+html, body { min-height: 100%; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 24px 40px;
+  position: relative;
+  overflow-x: hidden;
+}
+/* soft color blobs behind everything */
+.blobs { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.blobs i { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.85; }
+.blobs i:nth-child(1) { width: 46vmax; height: 46vmax; background: var(--blob-1); left: -14vmax; top: -12vmax; }
+.blobs i:nth-child(2) { width: 38vmax; height: 38vmax; background: var(--blob-2); right: -12vmax; top: -6vmax; }
+.blobs i:nth-child(3) { width: 42vmax; height: 42vmax; background: var(--blob-3); left: -8vmax; bottom: -18vmax; }
+.blobs i:nth-child(4) { width: 36vmax; height: 36vmax; background: var(--blob-4); right: -10vmax; bottom: -10vmax; }
+
+.wrap { position: relative; z-index: 1; max-width: 520px; margin: 0 auto; display: grid; grid-template-columns: minmax(0, 1fr); gap: 18px; }
+
+header { display: grid; gap: 6px; text-align: center; }
+h1 {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(1.9rem, 6vw, 2.6rem);
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  margin: 0;
+  text-wrap: balance;
+}
+h1 .dot { color: var(--accent); }
+.lede { margin: 0; color: var(--muted); font-size: 0.95rem; }
+
+.tools { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; align-items: center; }
+.btn, select {
+  font: 600 0.9rem/1 var(--body);
+  border: 1.5px solid var(--line);
+  background: var(--surface);
+  color: var(--fg);
+  border-radius: 999px;
+  padding: 9px 14px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 7px;
+  white-space: nowrap;
+}
+select { padding-right: 30px; appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--fg) 50%), linear-gradient(135deg, var(--fg) 50%, transparent 50%);
+  background-position: calc(100% - 16px) 50%, calc(100% - 11px) 50%;
+  background-size: 5px 5px; background-repeat: no-repeat; }
+.btn:hover, select:hover { border-color: var(--fg); }
+.btn[aria-pressed="true"] { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+.btn svg { width: 17px; height: 17px; }
+
+/* Flip card: front and back share one grid cell, so the card is as tall as its taller side. */
+.card { --h: 250; perspective: 1600px; cursor: pointer; border-radius: 28px; outline: none; }
+.card:focus-visible .face { box-shadow: 0 0 0 3px var(--bg), 0 0 0 6px var(--accent); }
+.inner { display: grid; transition: transform 0.6s cubic-bezier(.3,.7,.2,1); transform-style: preserve-3d; }
+.card.flipped .inner { transform: rotateY(180deg); }
+.face {
+  grid-area: 1 / 1;
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  border-radius: 28px;
+  padding: 22px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 18px 40px -18px oklch(45% 0.12 var(--h) / 0.45);
+  height: var(--card-h, auto);
+}
+.front {
+  background:
+    radial-gradient(circle at 85% 12%, oklch(97% 0.04 calc(var(--h) + 40)) 0 18%, transparent 19%),
+    radial-gradient(circle at 12% 92%, oklch(88% 0.09 calc(var(--h) - 30)) 0 14%, transparent 15%),
+    oklch(91% 0.075 var(--h));
+  color: oklch(40% 0.14 var(--h));
+  justify-content: center;
+  align-items: center;
+  gap: 28px;
+  min-height: 380px;
+  position: relative;
+}
+.measure { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; }
+.measure .face { height: auto; position: static; transform: none; }
+.front .tag { position: absolute; top: 22px; left: 22px; font: 700 0.72rem/1 var(--body); letter-spacing: 0.09em; text-transform: uppercase; }
+.front .word {
+  font-family: var(--display);
+  font-weight: 800;
+  font-size: clamp(3.6rem, 16vw, 5.6rem);
+  line-height: 1;
+  letter-spacing: -0.03em;
+  color: var(--fg);
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+.front .hint { position: absolute; bottom: 18px; font-size: 0.85rem; font-weight: 600; opacity: 0.85; }
+.back {
+  transform: rotateY(180deg);
+  background: var(--surface);
+  border: 3px solid oklch(85% 0.1 var(--h));
+  gap: 14px;
+}
+.back .top { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.back .wordline { display: flex; align-items: baseline; gap: 12px; flex-wrap: wrap; }
+.back .word { font-family: var(--display); font-weight: 800; font-size: 2.3rem; line-height: 1; }
+.ipa { font-family: var(--ipa); font-size: 1.5rem; color: var(--muted); }
+.sound {
+  display: flex; flex-wrap: wrap; gap: 4px 10px; align-items: baseline;
+  background: oklch(93% 0.06 var(--h));
+  color: oklch(38% 0.14 var(--h));
+  border-radius: 14px;
+  padding: 10px 14px;
+}
+.sound b { font-family: var(--display); font-size: 1.3rem; }
+.sound .sym { font-family: var(--ipa); font-size: 1.2rem; }
+.sound .kind { margin-left: auto; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.mouth { background: #fff; border: 1px solid var(--line); border-radius: 14px; display: grid; place-items: center; padding: 8px; }
+.mouth img { display: block; height: 170px; width: 100%; object-fit: contain; border-radius: 8px; }
+.label { font: 700 0.72rem/1 var(--body); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.tip { margin: 0; font-size: 0.98rem; line-height: 1.55; }
+.glide { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.glide svg { width: 170px; max-width: 100%; height: auto; flex: none; }
+.glide svg text { font-family: var(--ipa); font-size: 20px; fill: oklch(40% 0.14 var(--h)); }
+.glide svg path { stroke: var(--fg); fill: none; stroke-width: 2.4; }
+.glide p { margin: 0; font-size: 0.88rem; color: var(--muted); flex: 1 1 160px; min-width: 0; }
+.same { display: grid; gap: 8px; }
+.more { display: flex; flex-wrap: wrap; gap: 6px; }
+.more button {
+  font: 600 0.9rem/1 var(--body);
+  border: 1.5px solid oklch(85% 0.08 var(--h));
+  background: oklch(97% 0.025 var(--h));
+  color: var(--fg);
+  border-radius: 999px;
+  padding: 7px 12px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.more button svg { width: 14px; height: 14px; opacity: 0.6; }
+.more button:hover { border-color: var(--fg); }
+.listen {
+  font: 700 1rem/1 var(--body);
+  background: var(--accent);
+  color: var(--accent-fg);
+  border: 0;
+  border-radius: 999px;
+  padding: 13px 22px;
+  cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center; gap: 9px;
+  box-shadow: 0 8px 18px -8px var(--accent);
+}
+.listen.small { padding: 10px 16px; font-size: 0.92rem; }
+.listen:hover { filter: brightness(1.05); }
+.listen svg { width: 20px; height: 20px; }
+.listen.playing svg { animation: pulse 0.6s ease-in-out infinite alternate; }
+@keyframes pulse { to { transform: scale(1.25); } }
+
+.nav { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; }
+.nav .btn { justify-content: center; padding: 13px 18px; font-size: 1rem; }
+.nav .next { background: var(--fg); color: var(--surface); border-color: var(--fg); }
+.count { font: 700 1rem/1 var(--body); font-variant-numeric: tabular-nums; color: var(--muted); text-align: center; min-width: 5ch; }
+.progress { height: 6px; border-radius: 999px; background: rgb(27 34 70 / 0.08); overflow: hidden; }
+.progress span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--blob-1), var(--accent)); border-radius: inherit; transition: width 0.3s; }
+
+.keys { text-align: center; font-size: 0.8rem; color: var(--muted); margin: 0; }
+kbd { font: 600 0.75rem/1 var(--body); border: 1px solid var(--line); border-bottom-width: 2px; background: var(--surface); border-radius: 5px; padding: 2px 5px; }
+.voice-note { text-align: center; font-size: 0.78rem; color: var(--muted); margin: 0; }
+.credits { text-align: center; font-size: 0.72rem; color: var(--muted); margin: 0; max-width: 46ch; justify-self: center; }
+.credits a { color: inherit; }
+
+.btn:focus-visible, select:focus-visible, .listen:focus-visible, .more button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .inner, .progress span { transition: none; }
+  .listen.playing svg { animation: none; }
+}
+@media (max-width: 520px) {
+  body { padding-block: 14px 28px; }
+  .wrap { gap: 12px; }
+  .lede { display: none; }
+  h1 { font-size: 1.7rem; }
+  .tools { flex-wrap: nowrap; gap: 6px; }
+  .tools .btn, .tools select { padding: 8px 10px; font-size: 0.82rem; gap: 5px; }
+  .tools .btn svg { width: 15px; height: 15px; }
+  .tools select { min-width: 0; flex: 1 1 auto; max-width: 128px; padding-right: 26px; text-overflow: ellipsis; }
+  .face { padding: 16px; }
+  .back { gap: 10px; }
+  .back .word { font-size: 1.9rem; }
+  .ipa { font-size: 1.3rem; }
+  .sound { padding: 8px 12px; }
+  .mouth { padding: 4px; }
+  .mouth img { height: 104px; }
+  .keys { display: none; }
+  .tip { font-size: 0.9rem; line-height: 1.45; }
+  .glide svg { width: 130px; }
+  .front { min-height: 340px; }
+  .front .tag { top: 18px; left: 18px; }
+}
+@media (max-width: 420px) {
+  .nav .btn .lbl { display: none; }
+}
+</style>
+
+<div class="blobs" aria-hidden="true"><i></i><i></i><i></i><i></i></div>
+
+<div class="wrap">
+  <header>
+    <h1>American Vowels<span class="dot">.</span></h1>
+    <p class="lede">Listen to the word, then tap the card to see how to make the sound.</p>
+  </header>
+
+  <div class="tools">
+    <label for="filter" class="sr" hidden>Sound</label>
+    <select id="filter" aria-label="Choose a sound to practice"></select>
+    <button class="btn" id="shuffle" type="button">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20 21 3"/><path d="M21 16v5h-5"/><path d="m15 15 6 6"/><path d="M4 4l5 5"/></svg>
+      Shuffle
+    </button>
+    <button class="btn" id="slow" type="button" aria-pressed="false" title="Play words at half speed">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="13" r="8"/><path d="M12 9v4l2 2"/><path d="M9 2h6"/></svg>
+      Slow voice
+    </button>
+  </div>
+
+  <div id="stage"></div>
+
+  <div class="progress" aria-hidden="true"><span id="bar"></span></div>
+  <nav class="nav" aria-label="Cards">
+    <button class="btn prev" id="prev" type="button" aria-label="Previous word">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      <span class="lbl">Previous</span>
+    </button>
+    <span class="count" id="count">1 / 70</span>
+    <button class="btn next" id="next" type="button" aria-label="Next word">
+      <span class="lbl">Next</span>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18l6-6-6-6"/></svg>
+    </button>
+  </nav>
+
+  <p class="keys">Keyboard: <kbd>←</kbd> <kbd>→</kbd> move, <kbd>Space</kbd> flip, <kbd>L</kbd> listen</p>
+  <p class="voice-note" id="voiceNote">Voice: real American speakers</p>
+  <p class="credits">Recordings by American speakers from <a href="https://commons.wikimedia.org/wiki/Category:US_English_pronunciation" target="_blank" rel="noopener">Wikimedia Commons</a> (Wiktionary and Lingua Libre contributors, CC BY-SA / CC0).</p>
+</div>
+
+<script>
+const SOUNDS = [
+  { id: "aeh", name: "aeh", dict: "ă", ipa: "æ", key: "cat", kind: "Short vowel",
+    tip: "Drop your jaw and open your mouth fairly wide with a slight smile. Push your tongue forward so it rests behind your lower teeth.",
+    words: { cat: "kæt", back: "bæk", sat: "sæt", that: "ðæt", and: "ænd" } },
+  { id: "eh", name: "eh", dict: "ĕ", ipa: "ɛ", key: "let", kind: "Short vowel",
+    tip: "A shorter, more closed version of “aeh”. Close your mouth a little. The back of the tongue is up, the front stays forward.",
+    words: { let: "lɛt", egg: "ɛɡ", get: "ɡɛt", when: "wɛn", pen: "pɛn" } },
+  { id: "ih", name: "ih", dict: "ĭ", ipa: "ɪ", key: "it", kind: "Short vowel",
+    tip: "The back of your tongue touches your upper back teeth. The front of the tongue is forward and up. Keep it short.",
+    words: { it: "ɪt", give: "ɡɪv", if: "ɪf", this: "ðɪs", him: "hɪm" } },
+  { id: "ee", name: "EE", dict: "ē", ipa: "i", key: "eat", kind: "Long vowel",
+    tip: "Tense the back sides of your tongue and lift them to your upper back teeth. The tip stays down behind your lower teeth. Lips in a slight smile. Hold it longer than in most languages.",
+    glide: ["e", "e"],
+    words: { eat: "it", key: "ki", team: "tim", baby: "ˈbeɪbi", please: "pliz" } },
+  { id: "ah", name: "ah", dict: "ŏ / ä", ipa: "ɑ", key: "on", kind: "Short vowel",
+    tip: "Drop your jaw lower than for any other vowel. Press the back of your tongue down, keep the front touching your lower teeth. Lips relaxed.",
+    words: { on: "ɑn", box: "bɑks", what: "wɑt", lot: "lɑt", car: "kɑr" } },
+  { id: "aw", name: "aw", dict: "ô", ipa: "ɔ", key: "raw", kind: "Short vowel",
+    tip: "Round your lips and lower your jaw a little. Keep your lips close to your teeth. Tongue stays down and forward.",
+    words: { raw: "rɔ", all: "ɔl", law: "lɔ", dog: "dɔɡ", dawn: "dɔn" } },
+  { id: "uh", name: "uh", dict: "ŭ / ə", ipa: "ʌ / ə", key: "cup", kind: "Short vowel",
+    tip: "The shortest and most common American vowel, also called the schwa. Lips relaxed, the back of the tongue pushed slightly forward. It can be stressed or unstressed.",
+    words: { cup: "kʌp", the: "ðə", love: "lʌv", fun: "fʌn", young: "jʌŋ" } },
+  { id: "ugh", name: "ugh", dict: "o͝o", ipa: "ʊ", key: "book", kind: "Short vowel",
+    tip: "Jaw high, lips slightly rounded and close to your teeth, tongue forward. A short sound from the back of the throat, like a soft “ugh” when you get punched in the stomach.",
+    words: { book: "bʊk", good: "ɡʊd", put: "pʊt", should: "ʃʊd", look: "lʊk" } },
+  { id: "uu", name: "uu", dict: "o͞o", ipa: "u", key: "you", kind: "Diphthong",
+    tip: "Two sounds joined into one. Jaw high, lips slightly rounded and close to your teeth. For the second part, lower your larynx. The sound sits in the back of the throat.",
+    glide: ["u", "u"],
+    words: { you: "ju", new: "nu", too: "tu", blue: "blu", through: "θru" } },
+  { id: "ie", name: "IE", dict: "ī", ipa: "aɪ", key: "my", kind: "Diphthong", moves: "ah → EE",
+    tip: "Start with jaw and tongue down, like “ah”. Then raise your jaw, smile slightly and tense the back sides of your tongue toward your upper back teeth to finish on “EE”. Keep the tongue forward the whole time.",
+    glide: ["i", "e"],
+    words: { my: "maɪ", kind: "kaɪnd", I: "aɪ", by: "baɪ", time: "taɪm" } },
+  { id: "ae", name: "AE", dict: "ā", ipa: "eɪ", key: "may", kind: "Diphthong", moves: "eh → EE",
+    tip: "Open your mouth slightly with your tongue forward and start on “eh”, as in egg. Raise your jaw, tense the back sides of your tongue into your upper back teeth and smile slightly to finish on “EE”.",
+    glide: ["a", "e"],
+    words: { may: "meɪ", say: "seɪ", brain: "breɪn", day: "deɪ", gate: "ɡeɪt" } },
+  { id: "ow", name: "ow", dict: "ou", ipa: "aʊ", key: "house", kind: "Diphthong", moves: "aeh → uu",
+    tip: "Lower your jaw and open your mouth fairly wide with a slight smile, starting like “aeh”. Then raise your jaw and round your lips to finish on “uu”.",
+    words: { house: "haʊs", now: "naʊ", found: "faʊnd", proud: "praʊd", loud: "laʊd" } },
+  { id: "ou", name: "OU", dict: "ō", ipa: "oʊ", key: "no", kind: "Diphthong", moves: "oh → uu",
+    tip: "Start with jaw and tongue low and forward, lips rounded and close to your teeth (“oh”). Raise your jaw and tense your tongue so it becomes “uu”. In American English it resonates in the back of the throat.",
+    glide: ["o", "u"],
+    words: { no: "noʊ", coat: "koʊt", go: "ɡoʊ", those: "ðoʊz", so: "soʊ" } },
+  { id: "oye", name: "oye", dict: "ôi", ipa: "ɔɪ", key: "oil", kind: "Diphthong", moves: "oh → uu → EE",
+    tip: "Start with lips rounded and jaw down, like “oh”. Raise your jaw and smile slightly, tensing the back of your tongue up while the front goes down, ending on “EE”.",
+    words: { oil: "ɔɪl", boy: "bɔɪ", soil: "sɔɪl", toy: "tɔɪ", joy: "dʒɔɪ" } },
+];
+SOUNDS.forEach((s, i) => { s.h = Math.round((i * 360 / SOUNDS.length + 10) % 360); });
+const CARDS = SOUNDS.flatMap(s => Object.entries(s.words).map(([word, ipa]) => ({ word, ipa, s })));
+
+const SPEAKER = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 5 6 9H3v6h3l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>';
+
+/* ---------- Audio: real US recording (audio/<word>.mp3) first, American TTS voice as backup ---------- */
+let slow = false;
+// how the computer voice should read words it would otherwise misread
+const SAY_AS = { I: "eye" };
+let usVoice = null;
+let currentAudio = null;
+
+const NOVELTY = /albert|bad news|bahh|bells|boing|bubbles|cellos|good news|jester|organ|superstar|trinoids|whisper|wobble|zarvox|fred|junior|kathy|ralph|grandma|grandpa|rocko|shelley|sandy|eddy|flo|reed/i;
+function pickVoice() {
+  if (!("speechSynthesis" in window)) return null;
+  const voices = speechSynthesis.getVoices().filter(v => /^en[-_]US$/i.test(v.lang) && !NOVELTY.test(v.name));
+  const score = v =>
+    (/premium|enhanced|natural|neural/i.test(v.name) ? 50 : 0) +
+    (/samantha|ava|allison|aria|jenny|google us english|zoe|evan|nathan|joelle|tom|susan|alex/i.test(v.name) ? 20 : 0) +
+    (v.localService ? 2 : 0);
+  return voices.sort((a, b) => score(b) - score(a))[0] || null;
+}
+function setNote(text) { document.getElementById("voiceNote").textContent = text; }
+function refreshVoice() { usVoice = pickVoice(); }
+if ("speechSynthesis" in window) {
+  refreshVoice();
+  speechSynthesis.addEventListener?.("voiceschanged", refreshVoice);
+}
+
+function speakTTS(word, done) {
+  if (!("speechSynthesis" in window)) { done(); return; }
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(SAY_AS[word] || word);
+  u.lang = "en-US";
+  if (usVoice) u.voice = usVoice;
+  u.rate = slow ? 0.45 : 0.9;
+  u.onend = done; u.onerror = done;
+  speechSynthesis.speak(u);
+  setNote("Voice: " + (usVoice ? usVoice.name + " (computer, en-US)" : "computer American English (en-US)"));
+}
+
+async function say(word, btn) {
+  if (currentAudio) { currentAudio.pause(); currentAudio = null; }
+  if ("speechSynthesis" in window) speechSynthesis.cancel();
+  document.querySelectorAll(".listen.playing").forEach(b => b.classList.remove("playing"));
+  btn?.classList.add("playing");
+  const done = () => btn?.classList.remove("playing");
+
+  const a = new Audio("audio/" + word.toLowerCase() + ".mp3");
+  a.playbackRate = slow ? 0.5 : 1;
+  a.preservesPitch = true;
+  a.onended = done;
+  currentAudio = a;
+  try {
+    await a.play();
+    setNote("Voice: real American speaker (US recording)");
+  } catch (e) {
+    currentAudio = null;
+    speakTTS(word, done);
+  }
+}
+
+/* ---------- One card at a time ---------- */
+function glideSVG(s) {
+  const [a, b] = s.glide;
+  return `<div class="glide">
+    <svg viewBox="0 0 170 64" role="img" aria-label="Starts on ${a}, steps down to ${b}">
+      <text x="36" y="20" text-anchor="middle">${a}</text>
+      <text x="118" y="48" text-anchor="middle">${b}</text>
+      <path d="M8 27 H72 V56 H162"/>
+    </svg>
+    <p><b>Sound shape:</b> two steps. Start on “${a}”, then step down and hold “${b}”.</p>
+  </div>`;
+}
+
+function cardHTML(c) {
+  const s = c.s;
+  const others = Object.keys(s.words).filter(w => w !== c.word);
+  return `<div class="card" id="card" style="--h:${s.h}" tabindex="0" role="button" aria-pressed="false" aria-label="${c.word}. Tap to flip.">
+    <div class="inner">
+      <div class="face front">
+        <span class="tag">${s.kind}</span>
+        <span class="word">${c.word}</span>
+        <button class="listen" type="button" data-say="${c.word}">${SPEAKER} Listen</button>
+        <span class="hint">Tap the card to flip it</span>
+      </div>
+      <div class="face back" aria-hidden="true">
+        <div class="top">
+          <div class="wordline"><span class="word">${c.word}</span><span class="ipa">/${c.ipa}/</span></div>
+          <button class="listen small" type="button" data-say="${c.word}" tabindex="-1">${SPEAKER} Listen</button>
+        </div>
+        <div class="sound">
+          <b>${s.name}</b>
+          <span class="sym">(${s.dict})</span>
+          <span>as in “${s.key}”</span>
+          <span class="kind">${s.moves || "IPA " + s.ipa}</span>
+        </div>
+        <div class="mouth"><img src="img/${s.id}.jpg" alt="Mouth position for ${s.name}"></div>
+        <p class="tip">${s.tip}</p>
+        ${s.glide ? glideSVG(s) : ""}
+        <div class="same">
+          <span class="label">Same sound, tap to hear</span>
+          <div class="more">${others.map(w => `<button type="button" data-say="${w}" tabindex="-1">${SPEAKER}${w}</button>`).join("")}</div>
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+
+/* Every card gets the height of the tallest card back, measured at the current width. */
+function measure() {
+  const stage = document.getElementById("stage");
+  const box = document.createElement("div");
+  box.className = "measure";
+  box.style.width = stage.clientWidth + "px";
+  box.innerHTML = CARDS.map(c => cardHTML(c).replace('id="card"', "")).join("");
+  document.body.appendChild(box);
+  let h = 0;
+  box.querySelectorAll(".face").forEach(f => { h = Math.max(h, f.offsetHeight); });
+  box.remove();
+  stage.style.setProperty("--card-h", Math.ceil(h) + "px");
+}
+let resizeTimer;
+window.addEventListener("resize", () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(measure, 150); });
+document.fonts?.ready.then(measure);
+
+function shuffle(a) {
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+let deck = [];
+let pos = 0;
+let filter = "all";
+
+function buildDeck() {
+  deck = shuffle(CARDS.map((_, i) => i).filter(i => filter === "all" || CARDS[i].s.id === filter));
+  pos = 0;
+  show();
+}
+
+function show() {
+  const c = CARDS[deck[pos]];
+  document.getElementById("stage").innerHTML = cardHTML(c);
+  document.getElementById("count").textContent = `${pos + 1} / ${deck.length}`;
+  document.getElementById("bar").style.width = ((pos + 1) / deck.length * 100) + "%";
+  // preload the mouth photo for the next card
+  const n = CARDS[deck[(pos + 1) % deck.length]];
+  new Image().src = "img/" + n.s.id + ".jpg";
+}
+
+function flip() {
+  const card = document.getElementById("card");
+  const on = card.classList.toggle("flipped");
+  card.setAttribute("aria-pressed", on);
+  card.querySelector(".front").setAttribute("aria-hidden", on);
+  card.querySelector(".back").setAttribute("aria-hidden", !on);
+  card.querySelectorAll(".front [data-say]").forEach(b => b.tabIndex = on ? -1 : 0);
+  card.querySelectorAll(".back [data-say]").forEach(b => b.tabIndex = on ? 0 : -1);
+}
+
+function go(step) {
+  pos = (pos + step + deck.length) % deck.length;
+  show();
+}
+
+document.getElementById("stage").addEventListener("click", e => {
+  const sayBtn = e.target.closest("[data-say]");
+  if (sayBtn) {
+    e.stopPropagation();
+    say(sayBtn.dataset.say, sayBtn.classList.contains("listen") ? sayBtn : null);
+    return;
+  }
+  if (e.target.closest(".card")) flip();
+});
+document.getElementById("prev").addEventListener("click", () => go(-1));
+document.getElementById("next").addEventListener("click", () => go(1));
+document.getElementById("shuffle").addEventListener("click", buildDeck);
+document.getElementById("slow").addEventListener("click", e => {
+  slow = !slow;
+  e.currentTarget.setAttribute("aria-pressed", slow);
+});
+
+const sel = document.getElementById("filter");
+sel.innerHTML = `<option value="all">All 14 sounds</option>` +
+  SOUNDS.map(s => `<option value="${s.id}">${s.name} (${s.dict}) as in “${s.key}”</option>`).join("");
+sel.addEventListener("change", () => { filter = sel.value; buildDeck(); });
+
+document.addEventListener("keydown", e => {
+  if (e.target.tagName === "SELECT") return;
+  if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
+  else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
+  else if (e.key === " " || (e.key === "Enter" && e.target.id === "card")) {
+    if (e.target.closest("button") ) return;
+    e.preventDefault(); flip();
+  }
+  else if (e.key.toLowerCase() === "l") {
+    const c = CARDS[deck[pos]];
+    say(c.word, document.querySelector("#card .listen"));
+  }
+});
+
+// swipe left / right on phones
+let touchX = null;
+document.getElementById("stage").addEventListener("touchstart", e => { touchX = e.touches[0].clientX; }, { passive: true });
+document.getElementById("stage").addEventListener("touchend", e => {
+  if (touchX === null) return;
+  const dx = e.changedTouches[0].clientX - touchX;
+  touchX = null;
+  if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
+});
+
+measure();
+buildDeck();
+</script>
