@@ -181,7 +181,7 @@ select { padding-right: 30px; appearance: none;
 .listen.small { padding: 10px 16px; font-size: 0.92rem; }
 .listen:hover { filter: brightness(1.05); }
 .listen svg { width: 20px; height: 20px; }
-.listen.playing svg { animation: pulse 0.6s ease-in-out infinite alternate; }
+.playing svg { animation: pulse 0.6s ease-in-out infinite alternate; }
 @keyframes pulse { to { transform: scale(1.25); } }
 
 .nav { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; }
@@ -199,9 +199,86 @@ kbd { font: 600 0.75rem/1 var(--body); border: 1px solid var(--line); border-bot
 
 .btn:focus-visible, select:focus-visible, .listen:focus-visible, .more button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
 
+/* View switch: Flashcards / By sound */
+.modes {
+  justify-self: center;
+  display: inline-flex;
+  padding: 4px;
+  gap: 4px;
+  background: rgb(255 255 255 / 0.7);
+  border: 1.5px solid var(--line);
+  border-radius: 999px;
+}
+.modes button {
+  font: 700 0.92rem/1 var(--body);
+  border: 0;
+  background: transparent;
+  color: var(--muted);
+  border-radius: 999px;
+  padding: 9px 16px;
+  cursor: pointer;
+}
+.modes button[aria-selected="true"] { background: var(--fg); color: var(--surface); }
+.modes button:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+body.by-sound #shuffle, body.by-sound .flip-key { display: none; }
+
+/* By sound: one page per sound, like the lesson book */
+.sheet {
+  --h: 250;
+  background: var(--surface);
+  border-radius: 28px;
+  border: 3px solid oklch(88% 0.08 var(--h));
+  box-shadow: 0 18px 40px -18px oklch(45% 0.12 var(--h) / 0.45);
+  overflow: hidden;
+}
+.sheet-head {
+  background:
+    radial-gradient(circle at 92% 10%, oklch(97% 0.04 calc(var(--h) + 40)) 0 20%, transparent 21%),
+    oklch(91% 0.075 var(--h));
+  color: oklch(38% 0.14 var(--h));
+  padding: 20px 22px 18px;
+  display: grid;
+  gap: 6px;
+}
+.sheet-head .tag { font: 700 0.72rem/1 var(--body); letter-spacing: 0.09em; text-transform: uppercase; }
+.sheet-head .title { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; }
+.sheet-head .name { font-family: var(--display); font-weight: 800; font-size: clamp(2.6rem, 11vw, 3.4rem); line-height: 1; color: var(--fg); letter-spacing: -0.02em; }
+.sheet-head .sym { font-family: var(--ipa); font-size: 1.6rem; }
+.sheet-head .askey { font-size: 1.05rem; font-weight: 600; }
+.sheet-head .meta { display: flex; flex-wrap: wrap; gap: 6px 14px; font-size: 0.85rem; font-weight: 600; }
+.sheet-head .meta .ipa-s { font-family: var(--ipa); font-weight: 400; font-size: 1.05rem; }
+.sheet-body { padding: 18px 22px 22px; display: grid; gap: 16px; }
+.sheet .mouth img { height: 200px; }
+.words { display: grid; gap: 8px; }
+.wordrow {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: var(--fg);
+  background: oklch(97% 0.025 var(--h));
+  border: 1.5px solid oklch(88% 0.07 var(--h));
+  border-radius: 16px;
+  padding: 10px 14px;
+  cursor: pointer;
+}
+.wordrow:hover { border-color: var(--fg); }
+.wordrow:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.wordrow .play {
+  width: 36px; height: 36px; border-radius: 50%;
+  display: grid; place-items: center;
+  background: var(--accent); color: var(--accent-fg);
+}
+.wordrow .play svg { width: 18px; height: 18px; }
+.wordrow .w { font-family: var(--display); font-weight: 700; font-size: 1.35rem; line-height: 1.1; }
+.wordrow .t { font-family: var(--ipa); font-size: 1.2rem; color: var(--muted); }
+
 @media (prefers-reduced-motion: reduce) {
   .inner, .progress span { transition: none; }
-  .listen.playing svg { animation: none; }
+  .playing svg { animation: none; }
 }
 @media (max-width: 520px) {
   body { padding-block: 14px 28px; }
@@ -224,6 +301,11 @@ kbd { font: 600 0.75rem/1 var(--body); border: 1px solid var(--line); border-bot
   .glide svg { width: 130px; }
   .front { min-height: 340px; }
   .front .tag { top: 18px; left: 18px; }
+  .modes button { padding: 8px 14px; font-size: 0.88rem; }
+  .sheet-head { padding: 16px 16px 14px; }
+  .sheet-body { padding: 14px 16px 18px; gap: 12px; }
+  .sheet .mouth img { height: 140px; }
+  .wordrow { padding: 8px 12px; }
 }
 @media (max-width: 420px) {
   .nav .btn .lbl { display: none; }
@@ -235,8 +317,13 @@ kbd { font: 600 0.75rem/1 var(--body); border: 1px solid var(--line); border-bot
 <div class="wrap">
   <header>
     <h1>American Vowels<span class="dot">.</span></h1>
-    <p class="lede">Listen to the word, then tap the card to see how to make the sound.</p>
+    <p class="lede" id="lede">Listen to the word, then tap the card to see how to make the sound.</p>
   </header>
+
+  <div class="modes" role="tablist" aria-label="View">
+    <button type="button" role="tab" id="modeCards" aria-selected="true">Flashcards</button>
+    <button type="button" role="tab" id="modeSounds" aria-selected="false">By sound</button>
+  </div>
 
   <div class="tools">
     <label for="filter" class="sr" hidden>Sound</label>
@@ -266,7 +353,7 @@ kbd { font: 600 0.75rem/1 var(--body); border: 1px solid var(--line); border-bot
     </button>
   </nav>
 
-  <p class="keys">Keyboard: <kbd>←</kbd> <kbd>→</kbd> move, <kbd>Space</kbd> flip, <kbd>L</kbd> listen</p>
+  <p class="keys">Keyboard: <kbd>←</kbd> <kbd>→</kbd> move, <span class="flip-key"><kbd>Space</kbd> flip, </span><kbd>L</kbd> listen</p>
   <p class="voice-note" id="voiceNote">Voice: real American speakers</p>
   <p class="credits">Recordings by American speakers from <a href="https://commons.wikimedia.org/wiki/Category:US_English_pronunciation" target="_blank" rel="noopener">Wikimedia Commons</a> (Wiktionary and Lingua Libre contributors, CC BY-SA / CC0).</p>
 </div>
@@ -365,7 +452,7 @@ function speakTTS(word, done) {
 async function say(word, btn) {
   if (currentAudio) { currentAudio.pause(); currentAudio = null; }
   if ("speechSynthesis" in window) speechSynthesis.cancel();
-  document.querySelectorAll(".listen.playing").forEach(b => b.classList.remove("playing"));
+  document.querySelectorAll(".playing").forEach(b => b.classList.remove("playing"));
   btn?.classList.add("playing");
   const done = () => btn?.classList.remove("playing");
 
@@ -485,7 +572,75 @@ function flip() {
   card.querySelectorAll(".back [data-say]").forEach(b => b.tabIndex = on ? 0 : -1);
 }
 
+/* ---------- By sound: one page per sound, in book order ---------- */
+let mode = "cards";
+let soundPos = 0;
+
+function sheetHTML(s) {
+  return `<article class="sheet" style="--h:${s.h}">
+    <div class="sheet-head">
+      <span class="tag">${s.kind}</span>
+      <div class="title">
+        <span class="name">${s.name}</span>
+        <span class="sym">(${s.dict})</span>
+        <span class="askey">as in “${s.key}”</span>
+      </div>
+      <div class="meta">
+        <span>IPA <span class="ipa-s">/${s.ipa}/</span></span>
+        ${s.moves ? `<span>${s.moves}</span>` : ""}
+      </div>
+    </div>
+    <div class="sheet-body">
+      <div class="mouth"><img src="img/${s.id}.jpg" alt="Mouth position for ${s.name}"></div>
+      <p class="tip">${s.tip}</p>
+      ${s.glide ? glideSVG(s) : ""}
+      <div class="same">
+        <span class="label">Practice words, tap to hear</span>
+        <div class="words">${Object.entries(s.words).map(([w, t]) =>
+          `<button class="wordrow" type="button" data-say="${w}"><span class="play">${SPEAKER}</span><span class="w">${w}</span><span class="t">/${t}/</span></button>`
+        ).join("")}</div>
+      </div>
+    </div>
+  </article>`;
+}
+
+function showSound() {
+  const s = SOUNDS[soundPos];
+  document.getElementById("stage").innerHTML = sheetHTML(s);
+  document.getElementById("count").textContent = `${soundPos + 1} / ${SOUNDS.length}`;
+  document.getElementById("bar").style.width = ((soundPos + 1) / SOUNDS.length * 100) + "%";
+  sel.value = s.id;
+  new Image().src = "img/" + SOUNDS[(soundPos + 1) % SOUNDS.length].id + ".jpg";
+}
+
+function fillSelect() {
+  const opts = SOUNDS.map(s => `<option value="${s.id}">${s.name} (${s.dict}) as in “${s.key}”</option>`).join("");
+  sel.innerHTML = mode === "cards" ? `<option value="all">All 14 sounds</option>` + opts : opts;
+  sel.value = mode === "cards" ? filter : SOUNDS[soundPos].id;
+}
+
+function setMode(m) {
+  mode = m;
+  document.body.classList.toggle("by-sound", m === "sounds");
+  document.getElementById("modeCards").setAttribute("aria-selected", m === "cards");
+  document.getElementById("modeSounds").setAttribute("aria-selected", m === "sounds");
+  document.getElementById("prev").setAttribute("aria-label", m === "cards" ? "Previous word" : "Previous sound");
+  document.getElementById("next").setAttribute("aria-label", m === "cards" ? "Next word" : "Next sound");
+  document.getElementById("lede").textContent = m === "cards"
+    ? "Listen to the word, then tap the card to see how to make the sound."
+    : "Every vowel sound on its own page, with all its practice words.";
+  fillSelect();
+  if (m === "cards") show(); else showSound();
+  try { history.replaceState(null, "", m === "sounds" ? "#by-sound" : location.pathname + location.search); } catch (e) {}
+}
+
 function go(step) {
+  if (mode === "sounds") {
+    soundPos = (soundPos + step + SOUNDS.length) % SOUNDS.length;
+    showSound();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    return;
+  }
   pos = (pos + step + deck.length) % deck.length;
   show();
 }
@@ -494,7 +649,7 @@ document.getElementById("stage").addEventListener("click", e => {
   const sayBtn = e.target.closest("[data-say]");
   if (sayBtn) {
     e.stopPropagation();
-    say(sayBtn.dataset.say, sayBtn.classList.contains("listen") ? sayBtn : null);
+    say(sayBtn.dataset.say, sayBtn.classList.contains("listen") || sayBtn.classList.contains("wordrow") ? sayBtn : null);
     return;
   }
   if (e.target.closest(".card")) flip();
@@ -508,21 +663,34 @@ document.getElementById("slow").addEventListener("click", e => {
 });
 
 const sel = document.getElementById("filter");
-sel.innerHTML = `<option value="all">All 14 sounds</option>` +
-  SOUNDS.map(s => `<option value="${s.id}">${s.name} (${s.dict}) as in “${s.key}”</option>`).join("");
-sel.addEventListener("change", () => { filter = sel.value; buildDeck(); });
+sel.addEventListener("change", () => {
+  if (mode === "sounds") {
+    soundPos = SOUNDS.findIndex(s => s.id === sel.value);
+    showSound();
+  } else {
+    filter = sel.value;
+    buildDeck();
+  }
+});
+document.getElementById("modeCards").addEventListener("click", () => setMode("cards"));
+document.getElementById("modeSounds").addEventListener("click", () => setMode("sounds"));
 
 document.addEventListener("keydown", e => {
   if (e.target.tagName === "SELECT") return;
   if (e.key === "ArrowRight") { e.preventDefault(); go(1); }
   else if (e.key === "ArrowLeft") { e.preventDefault(); go(-1); }
-  else if (e.key === " " || (e.key === "Enter" && e.target.id === "card")) {
+  else if (mode === "cards" && (e.key === " " || (e.key === "Enter" && e.target.id === "card"))) {
     if (e.target.closest("button") ) return;
     e.preventDefault(); flip();
   }
   else if (e.key.toLowerCase() === "l") {
-    const c = CARDS[deck[pos]];
-    say(c.word, document.querySelector("#card .listen"));
+    if (mode === "sounds") {
+      const s = SOUNDS[soundPos];
+      say(s.key, document.querySelector(`.wordrow[data-say="${s.key}"]`));
+    } else {
+      const c = CARDS[deck[pos]];
+      say(c.word, document.querySelector("#card .listen"));
+    }
   }
 });
 
@@ -536,6 +704,8 @@ document.getElementById("stage").addEventListener("touchend", e => {
   if (Math.abs(dx) > 60) go(dx < 0 ? 1 : -1);
 });
 
+fillSelect();
 measure();
 buildDeck();
+if (location.hash === "#by-sound") setMode("sounds");
 </script>
